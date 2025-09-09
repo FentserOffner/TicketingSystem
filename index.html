@@ -1,0 +1,460 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Developer Ticketing System</title>
+    <style>
+        :root {
+            --primary: #2c3e50;
+            --secondary: #3498db;
+            --accent: #e74c3c;
+            --light: #ecf0f1;
+            --dark: #34495e;
+            --success: #2ecc71;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: #333;
+            line-height: 1.6;
+        }
+
+        header {
+            background-color: var(--primary);
+            color: white;
+            padding: 1rem;
+            box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        .header-content {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        h1 {
+            font-size: 1.8rem;
+        }
+
+        .btn {
+            display: inline-block;
+            background: var(--secondary);
+            color: white;
+            padding: 0.5rem 1rem;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            text-decoration: none;
+            font-size: 0.9rem;
+            transition: background 0.3s;
+        }
+
+        .btn:hover {
+            background: #2980b9;
+        }
+
+        .btn-accent {
+            background: var(--accent);
+        }
+
+        .btn-accent:hover {
+            background: #c0392b;
+        }
+
+        .main-content {
+            padding: 2rem 0;
+        }
+
+        .ticket-form {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            margin-bottom: 2rem;
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+        }
+
+        input, select, textarea {
+            width: 100%;
+            padding: 0.75rem;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 1rem;
+        }
+
+        textarea {
+            min-height: 120px;
+            resize: vertical;
+        }
+
+        .ticket-list {
+            background: white;
+            border-radius: 8px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            overflow: hidden;
+        }
+
+        .ticket-item {
+            padding: 1.5rem;
+            border-bottom: 1px solid #eee;
+            transition: background 0.2s;
+        }
+
+        .ticket-item:hover {
+            background: #f9f9f9;
+        }
+
+        .ticket-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.5rem;
+        }
+
+        .ticket-id {
+            font-weight: bold;
+            color: var(--secondary);
+            font-size: 1.1rem;
+        }
+
+        .ticket-type {
+            background: #eee;
+            padding: 0.25rem 0.5rem;
+            border-radius: 4px;
+            font-size: 0.8rem;
+        }
+
+        .ticket-title {
+            font-size: 1.2rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .ticket-desc {
+            color: #666;
+            margin-bottom: 1rem;
+        }
+
+        .ticket-meta {
+            display: flex;
+            font-size: 0.9rem;
+            color: #777;
+        }
+
+        .ticket-meta div {
+            margin-right: 1rem;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .notification {
+            position: fixed;
+            top: 20px;
+            right: 20px;
+            padding: 1rem;
+            background: var(--success);
+            color: white;
+            border-radius: 4px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            transform: translateX(100%);
+            transition: transform 0.3s;
+            z-index: 1000;
+        }
+
+        .notification.show {
+            transform: translateX(0);
+        }
+
+        @media (max-width: 768px) {
+            .ticket-meta {
+                flex-direction: column;
+            }
+
+            .ticket-meta div {
+                margin-bottom: 0.5rem;
+            }
+        }
+    </style>
+</head>
+<body>
+<header>
+    <div class="container header-content">
+        <h1>Developer Ticketing System</h1>
+        <button id="toggleFormBtn" class="btn">Neues Ticket</button>
+    </div>
+</header>
+
+<main class="container main-content">
+    <section id="ticketFormSection" class="ticket-form hidden">
+        <h2>Neues Ticket erstellen</h2>
+        <form id="ticketForm">
+            <div class="form-group">
+                <label for="ticketClass">Ticket-Klasse</label>
+                <select id="ticketClass" required>
+                    <option value="POST">POST (Post-Implementation)</option>
+                    <option value="DBIT">DBIT (Database Issue)</option>
+                    <option value="CODE">CODE (Code Problem)</option>
+                    <option value="HW">HW (Hardware Issue)</option>
+                    <option value="FEAT">FEAT (Feature Request)</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="ticketTitle">Titel</label>
+                <input type="text" id="ticketTitle" placeholder="Kurze Beschreibung des Problems" required>
+            </div>
+
+            <div class="form-group">
+                <label for="ticketType">Art</label>
+                <select id="ticketType" required>
+                    <option value="Code">Code</option>
+                    <option value="Hardware">Hardware</option>
+                    <option value="Datenbank">Datenbank</option>
+                    <option value="Design">Design</option>
+                    <option value="Sonstiges">Sonstiges</option>
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label for="ticketDesc">Beschreibung</label>
+                <textarea id="ticketDesc" placeholder="Detaillierte Beschreibung des Problems..." required></textarea>
+            </div>
+
+            <div class="form-group">
+                <label for="ticketEditor">Bearbeiter</label>
+                <input type="text" id="ticketEditor" placeholder="Name des Bearbeiters" required>
+            </div>
+
+            <div class="form-group">
+                <label for="ticketCreator">Ersteller</label>
+                <input type="text" id="ticketCreator" placeholder="Ihr Name" required>
+            </div>
+
+            <button type="submit" class="btn btn-accent">Ticket erstellen</button>
+        </form>
+    </section>
+
+    <section id="ticketListSection">
+        <h2>Alle Tickets</h2>
+        <div id="ticketList" class="ticket-list">
+            <!-- Tickets werden hier dynamisch eingefügt -->
+        </div>
+    </section>
+</main>
+
+<div id="notification" class="notification hidden">
+    Ticket erfolgreich erstellt!
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const toggleFormBtn = document.getElementById('toggleFormBtn');
+        const ticketFormSection = document.getElementById('ticketFormSection');
+        const ticketForm = document.getElementById('ticketForm');
+        const ticketList = document.getElementById('ticketList');
+        const notification = document.getElementById('notification');
+
+        let tickets = [];
+
+        // Formular ein-/ausblenden
+        toggleFormBtn.addEventListener('click', function() {
+            ticketFormSection.classList.toggle('hidden');
+            toggleFormBtn.textContent = ticketFormSection.classList.contains('hidden')
+                ? 'Neues Ticket'
+                : 'Abbrechen';
+        });
+
+        // Formular abschicken
+        ticketForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+
+            const ticketClass = document.getElementById('ticketClass').value;
+            const title = document.getElementById('ticketTitle').value;
+            const type = document.getElementById('ticketType').value;
+            const desc = document.getElementById('ticketDesc').value;
+            const editor = document.getElementById('ticketEditor').value;
+            const creator = document.getElementById('ticketCreator').value;
+
+            // Neues Ticket erstellen
+            createTicket(ticketClass, title, type, desc, editor, creator);
+
+            // Formular zurücksetzen
+            ticketForm.reset();
+
+            // Erfolgsmeldung anzeigen
+            showNotification('Ticket erfolgreich erstellt!');
+        });
+
+        // Ticket erstellen und speichern
+        function createTicket(ticketClass, title, type, desc, editor, creator) {
+            // Ticket-Nummer generieren (nächste verfügbare Nummer für diese Klasse)
+            const nextNumber = getNextTicketNumber(ticketClass);
+            const ticketId = `${ticketClass}-${nextNumber.toString().padStart(4, '0')}`;
+
+            // Ticket-Objekt erstellen
+            const ticket = {
+                id: ticketId,
+                class: ticketClass,
+                title: title,
+                type: type,
+                desc: desc,
+                editor: editor,
+                creator: creator,
+                createdAt: new Date().toISOString()
+            };
+
+            // Ticket zur Liste hinzufügen
+            tickets.push(ticket);
+
+            // Ticket in Datei speichern
+            saveTicketToFile(ticket);
+
+            // Ticket-Liste aktualisieren
+            renderTickets();
+        }
+
+        // Nächste Ticket-Nummer für eine Klasse ermitteln
+        function getNextTicketNumber(ticketClass) {
+            const classTickets = tickets.filter(t => t.class === ticketClass);
+            if (classTickets.length === 0) return 1;
+
+            const lastNumber = Math.max(...classTickets.map(t => {
+                const numPart = t.id.split('-')[1];
+                return parseInt(numPart, 10);
+            }));
+
+            return lastNumber + 1;
+        }
+
+        // Ticket im gewünschten Format speichern
+        function saveTicketToFile(ticket) {
+            // Format: title:type:{desc}:editor:creator
+            const content = `${ticket.title}:${ticket.type}:{${ticket.desc}}:${ticket.editor}:${ticket.creator}\n`;
+
+            // In einer realen Implementierung würde hier ein Server-Request gemacht werden
+            // Für diese Demo speichern wir im LocalStorage
+            const existingTickets = localStorage.getItem('dev_tickets') || '';
+            localStorage.setItem('dev_tickets', existingTickets + content);
+
+            console.log('Ticket gespeichert:', content);
+        }
+
+        // Tickets anzeigen
+        function renderTickets() {
+            ticketList.innerHTML = '';
+
+            if (tickets.length === 0) {
+                ticketList.innerHTML = '<div class="ticket-item"><p>Noch keine Tickets vorhanden.</p></div>';
+                return;
+            }
+
+            // Tickets absteigend nach Erstellungsdatum sortieren
+            const sortedTickets = [...tickets].sort((a, b) =>
+                new Date(b.createdAt) - new Date(a.createdAt)
+            );
+
+            sortedTickets.forEach(ticket => {
+                const ticketElement = document.createElement('div');
+                ticketElement.className = 'ticket-item';
+
+                const date = new Date(ticket.createdAt).toLocaleDateString('de-DE', {
+                    day: '2-digit',
+                    month: '2-digit',
+                    year: 'numeric',
+                    hour: '2-digit',
+                    minute: '2-digit'
+                });
+
+                ticketElement.innerHTML = `
+                        <div class="ticket-header">
+                            <span class="ticket-id">${ticket.id}</span>
+                            <span class="ticket-type">${ticket.type}</span>
+                        </div>
+                        <h3 class="ticket-title">${ticket.title}</h3>
+                        <p class="ticket-desc">${ticket.desc}</p>
+                        <div class="ticket-meta">
+                            <div><strong>Bearbeiter:</strong> ${ticket.editor}</div>
+                            <div><strong>Ersteller:</strong> ${ticket.creator}</div>
+                            <div><strong>Erstellt:</strong> ${date}</div>
+                        </div>
+                    `;
+
+                ticketList.appendChild(ticketElement);
+            });
+        }
+
+        // Benachrichtigung anzeigen
+        function showNotification(message) {
+            notification.textContent = message;
+            notification.classList.remove('hidden');
+            notification.classList.add('show');
+
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => {
+                    notification.classList.add('hidden');
+                }, 300);
+            }, 3000);
+        }
+
+        // Beim Start vorhandene Tickets laden
+        function loadTickets() {
+            // In einer realen Implementierung würde hier ein Server-Request gemacht werden
+            // Für diese Demo verwenden wir Beispieldaten
+            const exampleTickets = [
+                {
+                    id: 'POST-0001',
+                    class: 'POST',
+                    title: 'Login-Funktion reagiert nicht',
+                    type: 'Code',
+                    desc: 'Die Login-Funktion gibt nach der Eingabe der Zugangsdaten keine Rückmeldung.',
+                    editor: 'Max Mustermann',
+                    creator: 'Anna Schmidt',
+                    createdAt: '2023-05-15T10:30:00'
+                },
+                {
+                    id: 'DBIT-0001',
+                    class: 'DBIT',
+                    title: 'Datenbank-Verbindungsfehler',
+                    type: 'Datenbank',
+                    desc: 'Beim Versuch, eine Verbindung zur Hauptdatenbank herzustellen, tritt ein Timeout auf.',
+                    editor: 'Julia Weber',
+                    creator: 'Tom Müller',
+                    createdAt: '2023-05-14T14:45:00'
+                }
+            ];
+
+            tickets = exampleTickets;
+            renderTickets();
+        }
+
+        // Initialisierung
+        loadTickets();
+    });
+</script>
+</body>
+</html>
